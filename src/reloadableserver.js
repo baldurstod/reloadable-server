@@ -117,7 +117,7 @@ export class ReloadableServer {
 	async #listen(port, key, cert) {
 		await this.#close();
 		winston.info(`Listening on port ${port}`);
-		this.#httpsServer.setSecureContext({key: key, cert: cert});
+		this.#httpsServer.setSecureContext({ key: key, cert: cert });
 		this.#httpsServer.listen(port);
 	}
 
@@ -134,6 +134,7 @@ export class ReloadableServer {
 	}
 
 	configureWinston(config = {}) {
+		console.log(config);
 		winston.level = config.level ?? 'debug';
 
 		const format = winston.format;
@@ -147,11 +148,11 @@ export class ReloadableServer {
 			level: winston.level,
 			format: loggerFormat,
 			transports: [
-				new winston.transports.File({ filename: config.error ?? ERROR_LOG, level: 'error' }),
-				new winston.transports.File({ filename: config.combined ?? COMBINED_LOG }),
+				new winston.transports.File({ filename: config.errorLog ?? ERROR_LOG, level: 'error' }),
+				new winston.transports.File({ filename: config.combinedLog ?? COMBINED_LOG }),
 			],
 			exceptionHandlers: [
-				new winston.transports.File({ filename: config.exception ?? EXCEPTION_LOG })
+				new winston.transports.File({ filename: config.exceptionLog ?? EXCEPTION_LOG })
 			]
 		})
 	}
