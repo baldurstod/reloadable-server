@@ -1,6 +1,7 @@
 import { X509Certificate, createPrivateKey } from 'node:crypto';
 import { readFile } from 'node:fs/promises';
 
+import cors from 'cors';
 import express from 'express';
 import { rateLimit } from 'express-rate-limit'
 import https from 'https';
@@ -75,21 +76,6 @@ export class ReloadableServer {
 			}
 			else next();
 		});
-
-		/*this.express.use((req, res, next) => {
-			if (this.#config.allowedOrigins.length > 0 && req.get('origin') != undefined) {
-				// check to see if its a valid domain
-				const allowed = this.#config.allowedOrigins.indexOf(req.get('origin')) > -1 ||
-					allowedRegexOrigins.findIndex((reg) => reg.test(req.get('origin'))) > -1;
-
-				if (allowed) {
-					res.header('Access-Control-Allow-Origin', req.get('origin'));
-					res.header('Access-Control-Allow-Methods', 'GET');
-				}
-			}
-			next()
-		});*/
-
 	}
 
 	#initHttps() {
@@ -148,6 +134,7 @@ export class ReloadableServer {
 
 		middleWares.push(this.#configureRateLimit(config.rateLimit));
 		middleWares.push(this.#configureJSON(config.json));
+		middleWares.push(this.#configureCORS(config.cors));
 
 		this.#middleWares.setMiddleWares(middleWares);
 	}
@@ -168,6 +155,20 @@ export class ReloadableServer {
 	#configureJSON(config = {}) {
 		if (config.enable) {
 			return express.json({ limit: config.limit });
+		}
+	}
+
+	#configureCORS(corsConfig = {}) {
+		if (corsConfig.enable) {
+			return cors({
+				origin: corsConfig.origin,
+				methods: corsConfig.methods,
+				allowedHeaders: corsConfig.allowedHeaders,
+				exposedHeaders: corsConfig.exposedHeaders,
+				credentials: corsConfig.credentials,
+				maxAge: corsConfig.maxAge,
+				preflightContinue: corsConfig.preflightContinue,
+			});
 		}
 	}
 
