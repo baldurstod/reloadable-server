@@ -10,7 +10,8 @@
 			"rateLimit": {
 				"enable": true,
 				"windowMs": 3600000,
-				"max": 10000
+				"max": 1000,
+				"standardHeaders": true
 			},
 			"helmet": {
 			}

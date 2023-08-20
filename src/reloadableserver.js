@@ -37,7 +37,7 @@ export class ReloadableServer {
 		winston.info('ReloadableServer initializing config');
 
 		await this.configureExpress(config.express);
-		await this.configureMiddlewares(config.express);
+		await this.configureMiddlewares(config.express?.middlewares);
 		await this.configureHTTPS(config.https);
 	}
 
@@ -159,23 +159,27 @@ export class ReloadableServer {
 
 	configureExpress(config = {}) {
 		this.express.set('trust proxy', config.trustProxy);
-
-		if (config.rateLimit?.enable) {
-			this.express.use(rateLimit({
-				windowMs: config.rateLimit.windowMs,
-				max: config.rateLimit.max,
-				headers: false,
-				handler: (req, res) => {
-					RateLimit.respond(res);
-				}
-			}))
-		}
 	}
 
 	configureMiddlewares(config = {}) {
+		const middleWares = [];
 
+		middleWares.push(this.#configureRateLimit(config.rateLimit));
 
-		this.#middleWares.commit();
+		this.#middleWares.setMiddleWares(middleWares);
+	}
+
+	#configureRateLimit(config = {}) {
+		if (config.enable) {
+			return rateLimit({
+				windowMs: config.windowMs,
+				max: config.max,
+				standardHeaders: config.standardHeaders,
+				handler: (req, res) => {
+					RateLimit.respond(res);
+				}
+			})
+		}
 	}
 
 	async configureHTTPS(config = {}) {
