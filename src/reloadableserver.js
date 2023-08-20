@@ -179,8 +179,7 @@ export class ReloadableServer {
 	}
 
 	async configureHTTPS(config = {}) {
-		console.log(config);
-		const httpsPort = config.port;
+		const httpsPort = parseInt(config.port);
 		if (!httpsPort) {
 			throw 'https config is missing port';
 		}
@@ -200,50 +199,87 @@ export class ReloadableServer {
 		}
 	}
 
-	async #loadConfig(force = false) {
+	async #loadConfig() {
 		try {
 			const content = await readFile(this.#configPath);
 			const config = JSON.parse(content);
 
-			if (force || await this.validateConfig(config)) {
+			if (await this.validateConfig(config)) {
 				await this.#setConfig(config);
+				return true;
+			} else {
+				console.error('Config validation failed');
+				return false;
 			}
 
 		} catch (e) {
 			console.error('Error while loading config: ', e)
 		}
+		return false;
 	}
 
 	async validateConfig(config) {
-		if (!await this.#validateHTTPSConfig(config.https)) {
+		let valid = true;
+
+		valid &&= this.#validateHTTPSConfig(config.https);
+
+		return valid;
+	}
+
+	async #validateHTTPSConfig(config) {
+		try {
+			let valid = true;
+
+			valid &&= this.#validateHTTPSPort(config.port);
+			valid &&= this.#validateHTTPSCertificate(config.keyFile, config.certFile);
+
+			return valid;
+		} catch (error) {
+			console.error('Unable to validate https config ', error);
+			return false;
+		}
+	}
+
+	#validateHTTPSPort(port) {
+		const httpsPort = parseInt(port);
+
+		if (Number.isNaN(httpsPort)) {
+			console.error('HTTPS port is NaN');
+			return false;
+		}
+
+		if (httpsPort < 1024) {
+			console.error('HTTPS port is < 1024');
+			return false;
+		}
+
+		if (httpsPort > 0xFFFF) {
+			console.error('HTTPS port is > 0xFFFF');
 			return false;
 		}
 		return true;
 	}
 
-	async #validateHTTPSConfig(config) {
-		try {
-			const key = await readFile(config.keyFile);
-			const cert = await readFile(config.certFile);
+	async #validateHTTPSCertificate(keyFile, certFile) {
+		const key = await readFile(keyFile);
+		const cert = await readFile(certFile);
 
-			const cryptoCrt = new X509Certificate(cert);
-			const cryptoKey = createPrivateKey(key);
+		const cryptoCrt = new X509Certificate(cert);
+		const cryptoKey = createPrivateKey(key);
 
-			if (!cryptoCrt.checkPrivateKey(cryptoKey)) {
-				console.error('Unable to validate cert / key pair');
-				return false;
-			}
-
-
-			return true;
-		} catch (error) {
-			console.error('Unable to validate https config ', error);
+		if (!cryptoCrt.checkPrivateKey(cryptoKey)) {
+			console.error('Unable to validate cert / key pair');
+			return false;
 		}
-		return false;
+		return true;
 	}
 
-	#signalHUP() {
+	async #signalHUP() {
 		winston.info('HUP signal received, reloading config');
-		this.#loadConfig();
+		if (await this.#loadConfig()) {
+			console.error('Config successfully reloaded');
+		} else {
+			console.error('An error occured while reloading config');
+		}
 	}
 }
