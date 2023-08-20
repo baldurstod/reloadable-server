@@ -8,7 +8,7 @@ import { MiddlewareStack } from 'middleware-stack';
 import process from 'process';
 import winston from 'winston';
 
-//import { RateLimit } from './errors.js';
+import { RateLimit, InternalError } from './errors.js';
 
 const COMBINED_LOG = 'combined.log'
 const ERROR_LOG = 'error.log'
@@ -50,6 +50,11 @@ export class ReloadableServer {
 		this.express = express();
 		this.express.disable('x-powered-by');
 		this.express.use(this.#middleWares.handle);
+		this.express.use((err, req, res, next) => {
+			winston.error(err.stack);
+			//res.status(500).send('Internal server error');
+			InternalError.respond(res);
+		});
 
 		return;
 

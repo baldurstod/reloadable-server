@@ -27,4 +27,6 @@ export const GenericBad = new Error('Something went wrong on our end, please try
 export const BadBody = new Error('Improper body format', 7, 400);
 export const BadSecret = new Error('Bad Secret', 8, 400);
 export const NoBotsAvailable = new Error('No bots available to fulfill this request', 9, 500);
+
 export const RateLimit = new Error('Rate limit exceeded, too many requests', 10, 429);
+export const InternalError = new Error('Internal server error', 11, 500);
