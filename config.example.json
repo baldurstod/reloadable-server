@@ -1,0 +1,25 @@
+{
+	"https": {
+		"port": 22222,
+		"keyFile": "var/privkey.pem",
+		"certFile": "var/fullchain.pem"
+	},
+	"express": {
+		"trustProxy": false,
+		"middlewares": {
+			"rateLimit": {
+				"enable": true,
+				"windowMs": 3600000,
+				"max": 10000
+			},
+			"helmet": {
+			}
+		}
+	},
+	"wintson": {
+		"level": "debug"
+	},
+	"application": {
+		"yourKey": "yourValue"
+	}
+}
