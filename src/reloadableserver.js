@@ -58,27 +58,6 @@ export class ReloadableServer {
 
 		return;
 
-		/*
-		this.express.use((req, res, next) => {
-			const iter = this.#middleWares[Symbol.iterator]();
-
-			const nextCallback = () => {
-				const current = iter.next();
-				if (current.done) {
-					next();
-				} else {
-					const middleWare = current.value;
-					if (middleWare) {
-						middleWare(req, res, nextCallback);
-					} else {
-						nextCallback();
-					}
-				}
-			};
-			nextCallback();
-		});
-		*/
-
 		//this.express.use(this.#middleWares2.handle);
 
 		/*this.express.use((req, res, next) => {
@@ -88,8 +67,6 @@ export class ReloadableServer {
 			}
 			next();
 		});*/
-
-		this.express.use(express.json({ limit: '10kb' }));
 
 		this.express.use((error, req, res, next) => {
 			// Handle bodyParser errors
@@ -170,6 +147,7 @@ export class ReloadableServer {
 		const middleWares = [];
 
 		middleWares.push(this.#configureRateLimit(config.rateLimit));
+		middleWares.push(this.#configureJSON(config.json));
 
 		this.#middleWares.setMiddleWares(middleWares);
 	}
@@ -184,6 +162,12 @@ export class ReloadableServer {
 					RateLimit.respond(res);
 				}
 			})
+		}
+	}
+
+	#configureJSON(config = {}) {
+		if (config.enable) {
+			return express.json({ limit: config.limit });
 		}
 	}
 

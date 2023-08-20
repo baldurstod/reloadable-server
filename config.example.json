@@ -13,6 +13,10 @@
 				"max": 1000,
 				"standardHeaders": true
 			},
+			"json": {
+				"enable": true,
+				"limit": "10kb"
+			},
 			"helmet": {
 			}
 		}
