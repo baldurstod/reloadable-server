@@ -144,9 +144,10 @@ export class ReloadableServer {
 		}
 		if (rateLimitConfig.enable ?? true) {
 			return rateLimit({
-				windowMs: rateLimitConfig.windowMs,
-				max: rateLimitConfig.max,
-				standardHeaders: rateLimitConfig.standardHeaders,
+				windowMs: rateLimitConfig.options?.windowMs,
+				max: rateLimitConfig.options?.max,
+				standardHeaders: rateLimitConfig.options?.standardHeaders,
+				legacyHeaders: rateLimitConfig.options?.legacyHeaders,
 				handler: (req, res) => {
 					RateLimit.respond(res);
 				}
@@ -159,7 +160,7 @@ export class ReloadableServer {
 			return;
 		}
 		if (jsonConfig.enable ?? true) {
-			return express.json({ limit: jsonConfig.limit });
+			return express.json(jsonConfig.options);
 		}
 	}
 
@@ -168,15 +169,7 @@ export class ReloadableServer {
 			return;
 		}
 		if (corsConfig.enable ?? true) {
-			return cors({
-				origin: corsConfig.origin,
-				methods: corsConfig.methods,
-				allowedHeaders: corsConfig.allowedHeaders,
-				exposedHeaders: corsConfig.exposedHeaders,
-				credentials: corsConfig.credentials,
-				maxAge: corsConfig.maxAge,
-				preflightContinue: corsConfig.preflightContinue,
-			});
+			return cors(corsConfig.options);
 		}
 	}
 
@@ -187,7 +180,7 @@ export class ReloadableServer {
 		const staticMids = []
 		if ((staticConfig.enable ?? true) && staticConfig.directories) {
 			for (let dir of staticConfig.directories) {
-				staticMids.push(express.static(dir.directory, dir.options));
+				staticMids.push(express.static(dir.root, dir.options));
 			}
 		}
 		return staticMids;

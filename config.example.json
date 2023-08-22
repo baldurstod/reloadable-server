@@ -9,13 +9,19 @@
 		"middlewares": {
 			"rateLimit": {
 				"enable": true,
-				"windowMs": 3600000,
-				"max": 1000,
-				"standardHeaders": true
+				"options": {
+					"windowMs": 3600000,
+					"max": 1000,
+					"standardHeaders": true,
+					"legacyHeaders": false
+				}
 			},
 			"json": {
 				"enable": true,
-				"limit": "10kb"
+				"options": {
+					"_comment": "See https://expressjs.com/en/api.html#express.json",
+					"limit": "10kb"
+				}
 			},
 			"helmet": {
 				"enable": true,
@@ -25,15 +31,18 @@
 			},
 			"cors": {
 				"enable": true,
-				"origin": ["http://example.com"]
+				"options": {
+					"_comment": "See https://github.com/expressjs/cors#configuration-options",
+					"origin": ["http://example.com"]
+				}
 			},
 			"static": {
 				"enable": true,
 				"directories": [
 					{
-						"directory": "test/static",
+						"root": "test/static",
 						"options": {
-							"_comment": "supports express.static options except setHeaders"
+							"_comment": "Supports express.static options except setHeaders. See https://expressjs.com/en/api.html#express.static"
 						}
 					}
 				]
