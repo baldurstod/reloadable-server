@@ -136,12 +136,15 @@ export class ReloadableServer {
 		this.#middleWares.setMiddleWares(middleWares.flat());
 	}
 
-	#configureRateLimit(config = {}) {
-		if (config.enable) {
+	#configureRateLimit(rateLimitConfig = {}) {
+		if (!rateLimitConfig) {
+			return;
+		}
+		if (rateLimitConfig.enable ?? true) {
 			return rateLimit({
-				windowMs: config.windowMs,
-				max: config.max,
-				standardHeaders: config.standardHeaders,
+				windowMs: rateLimitConfig.windowMs,
+				max: rateLimitConfig.max,
+				standardHeaders: rateLimitConfig.standardHeaders,
 				handler: (req, res) => {
 					RateLimit.respond(res);
 				}
@@ -149,14 +152,20 @@ export class ReloadableServer {
 		}
 	}
 
-	#configureJSON(config = {}) {
-		if (config.enable) {
-			return express.json({ limit: config.limit });
+	#configureJSON(jsonConfig = {}) {
+		if (!jsonConfig) {
+			return;
+		}
+		if (jsonConfig.enable ?? true) {
+			return express.json({ limit: jsonConfig.limit });
 		}
 	}
 
-	#configureCORS(corsConfig = {}) {
-		if (corsConfig.enable) {
+	#configureCORS(corsConfig) {
+		if (!corsConfig) {
+			return;
+		}
+		if (corsConfig.enable ?? true) {
 			return cors({
 				origin: corsConfig.origin,
 				methods: corsConfig.methods,
@@ -169,7 +178,10 @@ export class ReloadableServer {
 		}
 	}
 
-	#configureStatic(staticConfig = {}) {
+	#configureStatic(staticConfig) {
+		if (!staticConfig) {
+			return;
+		}
 		const staticMids = []
 		if ((staticConfig.enable ?? true) && staticConfig.directories) {
 			for (let dir of staticConfig.directories) {
