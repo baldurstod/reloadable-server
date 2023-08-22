@@ -98,8 +98,8 @@ export class ReloadableServer {
 		await closePromise;
 	}
 
-	configureWinston(config = {}) {
-		winston.level = config.level ?? 'debug';
+	configureWinston(winstonConfig = {}) {
+		winston.level = winstonConfig.level ?? 'debug';
 
 		const format = winston.format;
 		const loggerFormat = format.combine(
@@ -112,26 +112,26 @@ export class ReloadableServer {
 			level: winston.level,
 			format: loggerFormat,
 			transports: [
-				new winston.transports.File({ filename: config.errorLog ?? ERROR_LOG, level: 'error' }),
-				new winston.transports.File({ filename: config.combinedLog ?? COMBINED_LOG }),
+				new winston.transports.File({ filename: winstonConfig.errorLog ?? ERROR_LOG, level: 'error' }),
+				new winston.transports.File({ filename: winstonConfig.combinedLog ?? COMBINED_LOG }),
 			],
 			exceptionHandlers: [
-				new winston.transports.File({ filename: config.exceptionLog ?? EXCEPTION_LOG })
+				new winston.transports.File({ filename: winstonConfig.exceptionLog ?? EXCEPTION_LOG })
 			]
 		})
 	}
 
-	configureExpress(config = {}) {
-		this.express.set('trust proxy', config.trustProxy);
+	configureExpress(expressConfig = {}) {
+		this.express.set('trust proxy', expressConfig.trustProxy);
 	}
 
-	configureMiddlewares(config = {}) {
+	configureMiddlewares(middlewaresConfig = {}) {
 		const middleWares = [];
 
-		middleWares.push(this.#configureRateLimit(config.rateLimit));
-		middleWares.push(this.#configureJSON(config.json));
-		middleWares.push(this.#configureCORS(config.cors));
-		middleWares.push(this.#configureStatic(config.static));
+		middleWares.push(this.#configureRateLimit(middlewaresConfig.rateLimit));
+		middleWares.push(this.#configureJSON(middlewaresConfig.json));
+		middleWares.push(this.#configureCORS(middlewaresConfig.cors));
+		middleWares.push(this.#configureStatic(middlewaresConfig.static));
 
 		this.#middleWares.setMiddleWares(middleWares.flat());
 	}
@@ -191,14 +191,14 @@ export class ReloadableServer {
 		return staticMids;
 	}
 
-	async configureHTTPS(config = {}) {
-		const httpsPort = parseInt(config.port);
+	async configureHTTPS(httpsConfig = {}) {
+		const httpsPort = parseInt(httpsConfig.port);
 		if (!httpsPort) {
 			throw 'https config is missing port';
 		}
 
-		const key = await readFile(config.keyFile);
-		const cert = await readFile(config.certFile);
+		const key = await readFile(httpsConfig.keyFile);
+		const cert = await readFile(httpsConfig.certFile);
 
 		this.#listen(httpsPort, key, cert);
 	}
@@ -239,12 +239,12 @@ export class ReloadableServer {
 		return valid;
 	}
 
-	async #validateHTTPSConfig(config) {
+	async #validateHTTPSConfig(httpsConfig) {
 		try {
 			let valid = true;
 
-			valid &&= this.#validateHTTPSPort(config.port);
-			valid &&= this.#validateHTTPSCertificate(config.keyFile, config.certFile);
+			valid &&= this.#validateHTTPSPort(httpsConfig.port);
+			valid &&= this.#validateHTTPSCertificate(httpsConfig.keyFile, httpsConfig.certFile);
 
 			return valid;
 		} catch (error) {
