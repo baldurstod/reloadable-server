@@ -9,11 +9,21 @@ class MyServer extends ReloadableServer {
 	}
 
 	#initExpressEndPoints() {
-		this.express.get('/', (req, res) => this.#get(req, res));
+		this.express.post('/testget', (req, res) => this.#testGet(req, res));
+		this.express.post('/testpost', (req, res) => this.#testPost(req, res));
 	}
 
-	async #get(req, res) {
+	async #testGet(req, res) {
 		try {
+			res.json({success: true, result: {}});
+		} catch(e) {
+			winston.error('Error in get : ' + e, {url: req.url, params: req.params});
+		}
+	}
+
+	async #testPost(req, res) {
+		try {
+			console.log(req.body);
 			res.json({success: true, result: {}});
 		} catch(e) {
 			winston.error('Error in get : ' + e, {url: req.url, params: req.params});
