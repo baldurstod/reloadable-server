@@ -53,13 +53,10 @@ export class ReloadableServer {
 		this.express.use(this.#middleWares.handle);
 		this.express.use((err, req, res, next) => {
 			winston.error(err.stack);
-			//res.status(500).send('Internal server error');
 			InternalError.respond(res);
 		});
 
 		return;
-
-		//this.express.use(this.#middleWares2.handle);
 
 		/*this.express.use((req, res, next) => {
 			if (req.method === 'POST') {
@@ -102,7 +99,6 @@ export class ReloadableServer {
 	}
 
 	configureWinston(config = {}) {
-		console.log(config);
 		winston.level = config.level ?? 'debug';
 
 		const format = winston.format;
