@@ -10,7 +10,7 @@ import { MiddlewareStack } from 'middleware-stack';
 import process from 'process';
 import winston from 'winston';
 
-import { RateLimit, InternalError } from './errors.js';
+import { RateLimit, InternalError, BadBody } from './errors.js';
 
 const COMBINED_LOG = 'combined.log'
 const ERROR_LOG = 'error.log'
@@ -19,6 +19,7 @@ const EXCEPTION_LOG = 'exception.log'
 export class ReloadableServer {
 	#configPath;
 	#config;
+	#errorConfig;
 	#winstonLogger;
 	#httpsServer;
 	#middleWares = new MiddlewareStack();
@@ -33,6 +34,7 @@ export class ReloadableServer {
 
 	async #setConfig(config = {}) {
 		this.#config = config;
+		this.#errorConfig = config.express.handleErrors;
 		await this.configureWinston(config.winston);
 
 		// Log this message after winston config to avoid the write logs with no transports message
@@ -52,28 +54,8 @@ export class ReloadableServer {
 		this.express = express();
 		this.express.disable('x-powered-by');
 		this.express.use(this.#middleWares.handle);
-		this.express.use((err, req, res, next) => {
-			winston.error(err.stack);
-			InternalError.respond(res);
-		});
 
-		return;
-
-		/*this.express.use((req, res, next) => {
-			if (req.method === 'POST') {
-				// Default content-type
-				req.headers['content-type'] = 'application/json';
-			}
-			next();
-		});*/
-
-		this.express.use((error, req, res, next) => {
-			// Handle bodyParser errors
-			if (error instanceof SyntaxError) {
-				BadBody.respond(res);
-			}
-			else next();
-		});
+		this.express.use((err, req, res, next) => this.#handleExpressError(err, req, res, next));
 	}
 
 	#initHttps() {
@@ -192,6 +174,30 @@ export class ReloadableServer {
 		}
 		if (helmetConfig.enable ?? true) {
 			return helmet(helmetConfig.options);
+		}
+	}
+
+	#handleExpressError(err, req, res, next) {
+		if (!this.#errorConfig) {
+			next();
+			return;
+		}
+		if (this.#errorConfig.enable ?? true) {
+			const o = this.#errorConfig.options;
+
+			winston.error(err);
+			if (err instanceof SyntaxError) {
+				if (o?.handleSyntaxError) {
+					BadBody.respond(res);
+					return;
+				}
+			} else {
+				if (o?.handleAnyError) {
+					InternalError.respond(res);
+					return;
+				}
+			}
+			next();
 		}
 	}
 

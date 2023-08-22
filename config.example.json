@@ -47,6 +47,13 @@
 					}
 				]
 			}
+		},
+		"handleErrors": {
+			"enable": true,
+			"options": {
+				"handleSyntaxError": true,
+				"handleAnyError": true
+			}
 		}
 	},
 	"winston": {
