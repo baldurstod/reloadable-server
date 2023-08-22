@@ -18,6 +18,10 @@
 				"limit": "10kb"
 			},
 			"helmet": {
+				"enable": true,
+				"options": {
+
+				}
 			},
 			"cors": {
 				"enable": true,

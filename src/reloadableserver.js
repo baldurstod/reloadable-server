@@ -4,6 +4,7 @@ import { readFile } from 'node:fs/promises';
 import cors from 'cors';
 import express from 'express';
 import { rateLimit } from 'express-rate-limit'
+import helmet from 'helmet';
 import https from 'https';
 import { MiddlewareStack } from 'middleware-stack';
 import process from 'process';
@@ -132,6 +133,7 @@ export class ReloadableServer {
 		middleWares.push(this.#configureJSON(middlewaresConfig.json));
 		middleWares.push(this.#configureCORS(middlewaresConfig.cors));
 		middleWares.push(this.#configureStatic(middlewaresConfig.static));
+		middleWares.push(this.#configureHelmet(middlewaresConfig.helmet));
 
 		this.#middleWares.setMiddleWares(middleWares.flat());
 	}
@@ -189,6 +191,15 @@ export class ReloadableServer {
 			}
 		}
 		return staticMids;
+	}
+
+	#configureHelmet(helmetConfig) {
+		if (!helmetConfig) {
+			return;
+		}
+		if (helmetConfig.enable ?? true) {
+			return helmet(helmetConfig.options);
+		}
 	}
 
 	async configureHTTPS(httpsConfig = {}) {
