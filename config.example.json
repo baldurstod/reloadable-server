@@ -22,6 +22,17 @@
 			"cors": {
 				"enable": true,
 				"origin": ["http://example.com"]
+			},
+			"static": {
+				"enable": true,
+				"directories": [
+					{
+						"directory": "test/static",
+						"options": {
+							"_comment": "supports express.static options except setHeaders"
+						}
+					}
+				]
 			}
 		}
 	},

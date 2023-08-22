@@ -135,8 +135,9 @@ export class ReloadableServer {
 		middleWares.push(this.#configureRateLimit(config.rateLimit));
 		middleWares.push(this.#configureJSON(config.json));
 		middleWares.push(this.#configureCORS(config.cors));
+		middleWares.push(this.#configureStatic(config.static));
 
-		this.#middleWares.setMiddleWares(middleWares);
+		this.#middleWares.setMiddleWares(middleWares.flat());
 	}
 
 	#configureRateLimit(config = {}) {
@@ -170,6 +171,16 @@ export class ReloadableServer {
 				preflightContinue: corsConfig.preflightContinue,
 			});
 		}
+	}
+
+	#configureStatic(staticConfig = {}) {
+		const staticMids = []
+		if ((staticConfig.enable ?? true) && staticConfig.directories) {
+			for (let dir of staticConfig.directories) {
+				staticMids.push(express.static(dir.directory, dir.options));
+			}
+		}
+		return staticMids;
 	}
 
 	async configureHTTPS(config = {}) {
