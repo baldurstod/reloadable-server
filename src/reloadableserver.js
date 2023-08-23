@@ -42,8 +42,8 @@ export class ReloadableServer {
 		winston.info('ReloadableServer initializing config');
 
 		await this.configureExpress(config.express);
-		await this.configureMiddlewares(config.express?.middlewares);
-		await this.configureHTTPS(config.https);
+		await this.#configureMiddlewares(config.express?.middlewares);
+		await this.#configureHTTPS(config.https);
 		await this.configureApplication(config.application);
 	}
 
@@ -111,7 +111,7 @@ export class ReloadableServer {
 		this.express.set('trust proxy', expressConfig.trustProxy);
 	}
 
-	configureMiddlewares(middlewaresConfig = {}) {
+	#configureMiddlewares(middlewaresConfig = {}) {
 		const middleWares = [];
 
 		middleWares.push(this.#configureRateLimit(middlewaresConfig.rateLimit));
@@ -204,7 +204,7 @@ export class ReloadableServer {
 		}
 	}
 
-	async configureHTTPS(httpsConfig = {}) {
+	async #configureHTTPS(httpsConfig = {}) {
 		const httpsPort = parseInt(httpsConfig.port);
 		if (!httpsPort) {
 			throw 'https config is missing port';
