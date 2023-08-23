@@ -22,6 +22,7 @@ export class ReloadableServer {
 	#errorConfig;
 	#winstonLogger;
 	#httpsServer;
+	#middleWaresBefore = new MiddlewareStack();
 	#middleWares = new MiddlewareStack();
 	constructor(configPath) {
 		this.#configPath = configPath;
@@ -54,6 +55,7 @@ export class ReloadableServer {
 	#initExpress() {
 		this.express = express();
 		this.express.disable('x-powered-by');
+		this.express.use(this.#middleWaresBefore.handle);
 		this.express.use(this.#middleWares.handle);
 
 		this.express.use((err, req, res, next) => this.#handleExpressError(err, req, res, next));
@@ -315,5 +317,9 @@ export class ReloadableServer {
 		} else {
 			console.error('An error occured while reloading config');
 		}
+	}
+
+	get middleWaresBefore() {
+		return this.#middleWaresBefore;
 	}
 }
