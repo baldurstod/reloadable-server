@@ -43,6 +43,7 @@ export class ReloadableServer {
 		await this.configureExpress(config.express);
 		await this.configureMiddlewares(config.express?.middlewares);
 		await this.configureHTTPS(config.https);
+		await this.configureApplication(config.application);
 	}
 
 	#initWinston() {
@@ -213,6 +214,10 @@ export class ReloadableServer {
 		this.#listen(httpsPort, key, cert);
 	}
 
+	async configureApplication(applicationConfig = {}) {
+		// Override this function if you need your application config reloaded
+	}
+
 	#initSignals() {
 		process.on('SIGHUP', () => this.#signalHUP());
 
@@ -245,6 +250,7 @@ export class ReloadableServer {
 		let valid = true;
 
 		valid &&= await this.#validateHTTPSConfig(config.https);
+		valid &&= await this.validateApplicationConfig(config.application);
 
 		return valid;
 	}
@@ -294,6 +300,11 @@ export class ReloadableServer {
 			console.error('Unable to validate cert / key pair');
 			return false;
 		}
+		return true;
+	}
+
+	async validateApplicationConfig(applicationConfig) {
+		// Override this function if you need your application config validated
 		return true;
 	}
 
