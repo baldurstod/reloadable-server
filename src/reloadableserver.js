@@ -244,7 +244,7 @@ export class ReloadableServer {
 	async validateConfig(config) {
 		let valid = true;
 
-		valid &&= this.#validateHTTPSConfig(config.https);
+		valid &&= await this.#validateHTTPSConfig(config.https);
 
 		return valid;
 	}
@@ -254,7 +254,7 @@ export class ReloadableServer {
 			let valid = true;
 
 			valid &&= this.#validateHTTPSPort(httpsConfig.port);
-			valid &&= this.#validateHTTPSCertificate(httpsConfig.keyFile, httpsConfig.certFile);
+			valid &&= await this.#validateHTTPSCertificate(httpsConfig.keyFile, httpsConfig.certFile);
 
 			return valid;
 		} catch (error) {
