@@ -46,6 +46,23 @@
 						}
 					}
 				]
+			},
+			"session": {
+				"enable": true,
+				"sessionSecret": "XXXXXX",
+				"resave": false,
+				"saveUninitialized": false,
+				"store": {
+					"_comment type filestore: See https://github.com/valery-barysok/session-file-store"
+					"type": "filestore",
+					"options": {
+						"ttl": 2592000,
+						"path": "./var/sessions"
+					}
+				},
+				"cookie": {
+					"_comment": "See https://www.npmjs.com/package/express-session"
+				}
 			}
 		},
 		"handleErrors": {

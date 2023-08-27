@@ -4,10 +4,12 @@ import { readFile } from 'node:fs/promises';
 import cors from 'cors';
 import express from 'express';
 import { rateLimit } from 'express-rate-limit'
+import session from 'express-session';
 import helmet from 'helmet';
 import https from 'https';
 import { MiddlewareStack } from 'middleware-stack';
 import process from 'process';
+import fileStore from 'session-file-store';
 import winston from 'winston';
 
 import { RateLimit, InternalError, BadBody } from './errors.js';
@@ -114,6 +116,7 @@ export class ReloadableServer {
 	#configureMiddlewares(middlewaresConfig = {}) {
 		const middleWares = [];
 
+		middleWares.push(this.#configureSession(middlewaresConfig.session));
 		middleWares.push(this.#configureRateLimit(middlewaresConfig.rateLimit));
 		middleWares.push(this.#configureJSON(middlewaresConfig.json));
 		middleWares.push(this.#configureCORS(middlewaresConfig.cors));
@@ -121,6 +124,23 @@ export class ReloadableServer {
 		middleWares.push(this.#configureHelmet(middlewaresConfig.helmet));
 
 		this.#middleWares.setMiddleWares(middleWares.flat());
+	}
+
+	#configureSession(sessionConfig = {}) {
+		if (!sessionConfig) {
+			return;
+		}
+		if (sessionConfig.enable ?? true) {
+			return session({
+				store: new (fileStore(session))(sessionConfig.store.options),
+				cookie: sessionConfig.cookie,
+				name: sessionConfig.name,
+				resave: sessionConfig.resave,
+				rolling: sessionConfig.rolling,
+				secret: sessionConfig.sessionSecret,
+				saveUninitialized: sessionConfig.saveUninitialized,
+			});
+		}
 	}
 
 	#configureRateLimit(rateLimitConfig = {}) {
