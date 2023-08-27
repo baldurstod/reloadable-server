@@ -1,6 +1,7 @@
 import { X509Certificate, createPrivateKey } from 'node:crypto';
 import { readFile } from 'node:fs/promises';
 
+import MongoStore from 'connect-mongo';
 import cors from 'cors';
 import express from 'express';
 import { rateLimit } from 'express-rate-limit'
@@ -131,8 +132,18 @@ export class ReloadableServer {
 			return;
 		}
 		if (sessionConfig.enable ?? true) {
+			let store;
+			const storeType = sessionConfig.store.type;
+			const storeOptions = sessionConfig.store.options;
+			if (storeType == 'filestore') {
+				store = new (fileStore(session))(storeOptions);
+			} else if (storeType == 'mongo') {
+				store = MongoStore.create(storeOptions);
+			} else {
+				throw `Unknown store ${storeType}`;
+			}
 			return session({
-				store: new (fileStore(session))(sessionConfig.store.options),
+				store: store,
 				cookie: sessionConfig.cookie,
 				name: sessionConfig.name,
 				resave: sessionConfig.resave,

@@ -53,11 +53,18 @@
 				"resave": false,
 				"saveUninitialized": false,
 				"store": {
-					"_comment type filestore: See https://github.com/valery-barysok/session-file-store"
-					"type": "filestore",
+					"type": "mongo",
 					"options": {
+						"_comment": "ttl is a common parameter",
 						"ttl": 2592000,
-						"path": "./var/sessions"
+
+						"_comment": "type filestore: See https://github.com/valery-barysok/session-file-store#options",
+						"path": "./var/sessions",
+
+						"_comment": "type mongo: See https://github.com/jdesboeufs/connect-mongo#more-options",
+						"mongoUrl": "mongodb://127.0.0.1",
+						"mongoOptions": {},
+						"dbName": "testDB"
 					}
 				},
 				"cookie": {
