@@ -127,7 +127,7 @@ export class ReloadableServer {
 		this.#middleWares.setMiddleWares(middleWares.flat());
 	}
 
-	#configureSession(sessionConfig = {}) {
+	#configureSession(sessionConfig) {
 		if (!sessionConfig) {
 			return;
 		}
@@ -154,7 +154,7 @@ export class ReloadableServer {
 		}
 	}
 
-	#configureRateLimit(rateLimitConfig = {}) {
+	#configureRateLimit(rateLimitConfig) {
 		if (!rateLimitConfig) {
 			return;
 		}
