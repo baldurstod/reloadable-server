@@ -171,7 +171,7 @@ export class ReloadableServer {
 		}
 	}
 
-	#configureJSON(jsonConfig = {}) {
+	#configureJSON(jsonConfig) {
 		if (!jsonConfig) {
 			return;
 		}
