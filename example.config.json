@@ -84,7 +84,8 @@
 		"level": "debug",
 		"errorLog": "var/logs/error.log",
 		"exceptionLog": "var/logs/exception.log",
-		"combinedLog": "var/logs/combined.log"
+		"combinedLog": "var/logs/combined.log",
+		"rejectionLog": "var/logs/rejection.log"
 	},
 	"application": {
 		"yourKey": "yourValue"
