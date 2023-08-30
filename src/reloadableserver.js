@@ -89,6 +89,7 @@ export class ReloadableServer {
 
 	configureWinston(winstonConfig = {}) {
 		winston.level = winstonConfig.level ?? 'debug';
+		winston.exitOnError = winstonConfig.exitOnError ?? false;
 
 		const format = winston.format;
 		const loggerFormat = format.combine(
