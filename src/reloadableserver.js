@@ -18,6 +18,7 @@ import { RateLimit, InternalError, BadBody } from './errors.js';
 const COMBINED_LOG = 'combined.log'
 const ERROR_LOG = 'error.log'
 const EXCEPTION_LOG = 'exception.log'
+const REJECTION_LOG = 'rejection.log'
 
 export class ReloadableServer {
 	#configPath;
@@ -89,7 +90,7 @@ export class ReloadableServer {
 
 	configureWinston(winstonConfig = {}) {
 		winston.level = winstonConfig.level ?? 'debug';
-		winston.exitOnError = winstonConfig.exitOnError ?? false;
+		this.#winstonLogger.exitOnError = false;
 
 		const format = winston.format;
 		const loggerFormat = format.combine(
@@ -106,9 +107,12 @@ export class ReloadableServer {
 				new winston.transports.File({ filename: winstonConfig.combinedLog ?? COMBINED_LOG }),
 			],
 			exceptionHandlers: [
-				new winston.transports.File({ filename: winstonConfig.exceptionLog ?? EXCEPTION_LOG })
-			]
-		})
+				new winston.transports.File({ filename: winstonConfig.exceptionLog ?? EXCEPTION_LOG }),
+			],
+			rejectionHandlers: [
+				new winston.transports.File({ filename: winstonConfig.rejectionLog ?? REJECTION_LOG }),
+			],
+		});
 	}
 
 	configureExpress(expressConfig = {}) {
