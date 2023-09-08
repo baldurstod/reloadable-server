@@ -126,8 +126,8 @@ export class ReloadableServer {
 		middleWares.push(this.#configureRateLimit(middlewaresConfig.rateLimit));
 		middleWares.push(this.#configureJSON(middlewaresConfig.json));
 		middleWares.push(this.#configureCORS(middlewaresConfig.cors));
-		middleWares.push(this.#configureStatic(middlewaresConfig.static));
 		middleWares.push(this.#configureHelmet(middlewaresConfig.helmet));
+		middleWares.push(this.#configureStatic(middlewaresConfig.static));
 
 		this.#middleWares.setMiddleWares(middleWares.flat());
 	}
