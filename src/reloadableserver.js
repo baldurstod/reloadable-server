@@ -1,4 +1,4 @@
-import { X509Certificate, createPrivateKey } from 'node:crypto';
+import { X509Certificate, createPrivateKey, randomUUID } from 'node:crypto';
 import { readFile } from 'node:fs/promises';
 
 import MongoStore from 'connect-mongo';
@@ -19,6 +19,8 @@ const COMBINED_LOG = 'combined.log'
 const ERROR_LOG = 'error.log'
 const EXCEPTION_LOG = 'exception.log'
 const REJECTION_LOG = 'rejection.log'
+
+const UUID_V4_PATTERN = /^[0-9A-F]{8}-[0-9A-F]{4}-4[0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$/i
 
 export class ReloadableServer {
 	#configPath;
@@ -122,6 +124,7 @@ export class ReloadableServer {
 	#configureMiddlewares(middlewaresConfig = {}) {
 		const middleWares = [];
 
+		middleWares.push(this.#configureRequestId(middlewaresConfig.requestId));
 		middleWares.push(this.#configureSession(middlewaresConfig.session));
 		middleWares.push(this.#configureRateLimit(middlewaresConfig.rateLimit));
 		middleWares.push(this.#configureJSON(middlewaresConfig.json));
@@ -130,6 +133,31 @@ export class ReloadableServer {
 		middleWares.push(this.#configureStatic(middlewaresConfig.static));
 
 		this.#middleWares.setMiddleWares(middleWares.flat());
+	}
+
+	#configureRequestId(requestIdConfig) {
+		if (!requestIdConfig) {
+			return;
+		}
+
+		if (requestIdConfig.enable ?? true) {
+			const headerName = requestIdConfig.headerName ?? 'X-Request-Id';
+			const setHeader = requestIdConfig.setHeader ?? true;
+
+			return function (request, response, next) {
+				const clientRequestId = request.get(headerName);
+
+				const requestId = clientRequestId && UUID_V4_PATTERN.test(clientRequestId) ? clientRequestId : randomUUID();
+
+				if (setHeader) {
+					response.set(headerName, requestId);
+				}
+
+				request.requestId = requestId;
+
+				next();
+			};
+		}
 	}
 
 	#configureSession(sessionConfig) {

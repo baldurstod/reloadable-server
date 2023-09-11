@@ -12,3 +12,26 @@ async function testBadRequest() {
 
 
 testBadRequest();
+
+
+async function testBadRequestId() {
+	const response = await fetch('/testrequestid', {
+		method: 'GET',
+		headers : {
+			'Content-Type': 'application/json',
+			'X-Request-Id': 'my request id',
+		},
+	});
+}
+testBadRequestId()
+
+async function testRequestId() {
+	const response = await fetch('/testrequestid', {
+		method: 'GET',
+		headers : {
+			'Content-Type': 'application/json',
+			'X-Request-Id': crypto.randomUUID(),
+		},
+	});
+}
+testRequestId()

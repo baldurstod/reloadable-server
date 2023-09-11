@@ -26,7 +26,15 @@
 			"helmet": {
 				"enable": true,
 				"options": {
-
+					"contentSecurityPolicy": {
+						"directives": {
+							"imgSrc": "'self' data:",
+							"defaultSrc": "'self' data:",
+							"scriptSrc": "'self' 'unsafe-inline'",
+							"frameSrc": "'self'",
+							"connectSrc": "'self' data:"
+						}
+					}
 				}
 			},
 			"cors": {
@@ -70,6 +78,10 @@
 				"cookie": {
 					"_comment": "See https://www.npmjs.com/package/express-session"
 				}
+			}
+			,"requestId": {
+				"enable": true
+
 			}
 		},
 		"handleErrors": {
