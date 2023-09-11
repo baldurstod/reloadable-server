@@ -141,7 +141,7 @@ export class ReloadableServer {
 		}
 
 		if (requestIdConfig.enable ?? true) {
-			const headerName = requestIdConfig.headerName ?? 'X-Request-Id';
+			const headerName = requestIdConfig.headerName ?? 'X-Request-ID';
 			const setHeader = requestIdConfig.setHeader ?? true;
 
 			return function (request, response, next) {

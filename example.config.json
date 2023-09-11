@@ -66,10 +66,10 @@
 						"_comment": "ttl is a common parameter",
 						"ttl": 2592000,
 
-						"_comment": "type filestore: See https://github.com/valery-barysok/session-file-store#options",
+						"_comment ": "type filestore: See https://github.com/valery-barysok/session-file-store#options",
 						"path": "./var/sessions",
 
-						"_comment": "type mongo: See https://github.com/jdesboeufs/connect-mongo#more-options",
+						"_comment  ": "type mongo: See https://github.com/jdesboeufs/connect-mongo#more-options",
 						"mongoUrl": "mongodb://127.0.0.1",
 						"mongoOptions": {},
 						"dbName": "testDB"
